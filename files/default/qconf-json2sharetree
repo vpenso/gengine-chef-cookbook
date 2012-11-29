@@ -1,0 +1,80 @@
+#!/usr/bin/env ruby
+
+require 'json'
+require 'ostruct'
+require 'getoptlong'
+
+$sharetree_id = 0
+
+def sharetree(data)
+  stree = String.new # sharetree 
+  ids = Array.new # list of direct descendants 
+  data.each do |name,conf|
+    type = conf.has_key?('project') ? 1 : 0 # if this is a project
+    # nasty global to increment the ID for all descendants
+    id = $sharetree_id ; $sharetree_id += 1
+    shares = conf['shares']
+    # descend into deep subtrees recursively
+    buffer = String.new
+    if (conf.keys - ['shares','project']).length > 0
+      conf.delete('shares')
+      conf.delete('project')
+      buffer,childs = sharetree(conf)
+      # IDs of direct children
+      childnodes = childs.join(",")
+    else
+      childnodes = "NONE"
+    end
+    ids << id
+    stree << "id=#{id}\nname=#{name}\ntype=#{type}\nshares=#{shares}\nchildnodes=#{childnodes}\n"
+    # print all descendants after the parent 
+    stree << buffer unless buffer.empty?
+  end
+  return [ stree, ids ]
+end
+
+begin
+
+  input = if not $stdin.tty?
+    begin 
+      JSON.parse $stdin.read
+    rescue
+      raise("Couldn't parse JSON input from STDIN.")
+    end
+  else
+    raise("This program expects JSON input from STDIN")
+  end
+
+  options = OpenStruct.new
+  options.debug = false
+
+  GetoptLong.new(
+    ['--debug','-d',GetoptLong::NO_ARGUMENT],
+    ['--help','-h',GetoptLong::NO_ARGUMENT]
+  ).each do |opt,arg|
+    case opt
+    when '--debug'
+      options.debug = true
+    when '--help'
+      $stdout.puts HELP
+      exit 0
+    end
+  end
+
+  puts sharetree input
+
+rescue => exc
+  $stderr.puts "ERROR: #{exc.message}"
+  $stderr.puts " use -h for detailed instructions"
+  if options.debug
+    $stderr.puts '-- Stack Trace --'
+    $stderr.puts exc.backtrace
+  else
+    $stderr.puts 'You may want run this in debug mode with \'-d\''
+  end
+  exit 1
+end
+
+exit 0
+
+__END__
