@@ -1,8 +1,54 @@
 #!/usr/bin/env ruby
+#
+# Copyright 2012 Victor Penso
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
 
 require 'json'
 require 'ostruct'
 require 'getoptlong'
+
+
+exec_name = File.split(__FILE__)[-1]
+HELP = <<EOF
+Synopsis
+========
+
+#{exec_name} 
+
+Transforms a GridEngine sharetree described in
+a JSON data structure into the format parsable
+by `qconf`.
+
+Usage
+-----
+
+#{exec_name} [OPTIONS] [FILE]
+
+FILE: Path to the output file.
+
+Options
+-------
+
+--intput, -i PATH
+  PAth to the source data file.
+--help, -h
+  Show this help information.
+--debug, -d
+  Show stacktraces in case of errors.
+EOF
 
 $sharetree_id = 0
 
@@ -35,33 +81,53 @@ end
 
 begin
 
-  input = if not $stdin.tty?
-    begin 
-      JSON.parse $stdin.read
-    rescue
-      raise("Couldn't parse JSON input from STDIN.")
-    end
-  else
-    raise("This program expects JSON input from STDIN")
+  # read the input stream if it exists
+  stdin = String.new
+  if not $stdin.tty?
+    stdin = $stdin.read
   end
 
   options = OpenStruct.new
   options.debug = false
-
+  input = String.new
   GetoptLong.new(
     ['--debug','-d',GetoptLong::NO_ARGUMENT],
+    ['--input','-i', GetoptLong::REQUIRED_ARGUMENT],
     ['--help','-h',GetoptLong::NO_ARGUMENT]
   ).each do |opt,arg|
     case opt
     when '--debug'
       options.debug = true
+    when '--input'
+      raise("Source data in #{arg} missing") unless File.exists? arg
+      input = File.read(arg)
     when '--help'
       $stdout.puts HELP
       exit 0
     end
   end
 
-  puts sharetree input
+  # continue unless input data is missing
+  if stdin.empty? and input.empty?
+    raise("No input data available!")
+  end
+  # data from the input pipe is discarded 
+  # if more then one input source exists
+  input = stdin if input.empty?
+  # process the input data
+  stree, trash = sharetree(JSON.parse(input))
+
+  case ARGV.length 
+  # write to a file
+  when 1
+    dest = ARGV.shift
+    File.open(dest,'w') { |f| f.write stree }
+  # print to the terminal
+  when 0
+    $stdout.puts stree
+  else
+    raise("Wrong number of arguments")
+  end
 
 rescue => exc
   $stderr.puts "ERROR: #{exc.message}"
