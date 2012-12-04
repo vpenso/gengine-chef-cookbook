@@ -1,6 +1,8 @@
 # Description
 
-The "gengine" cookbook installs and configures the Grid Engine local resource management system (known as Sun Grid Engine before).
+**The "gengine" [Chef](http://wiki.opscode.com/) cookbook installs and configures the Grid Engine local resource management system.** You can find the latest version on GitHub:
+
+<https://github.com/vpenso/gengine-chef-cookbook>
 
 Requirements:
 
@@ -9,24 +11,21 @@ Requirements:
 * No dependencies to other Chef cookbooks.
 * General understanding of the Grid Engine cluster configuration.
 
-References:
-
-* [Open Grid Scheduler][ogs] on Sourceforge.
-* [Son of Grid Engine][soge] from the University of Liverpool.
-* Debian [package][debian] information, and maintainers [site][debian_dev].
-* [Mailing list][list] and [HowTos][howto].
-
 # Recipes and Attributes
 
-Find the code in `recipes/default.rb`
+↪ `recipes/default.rb`
 
 The Gengine cookbook distinguishes **three types of nodes: master, exec, and client**. The attribute `node.gengine.role` is set to _exec_ by default, which will render all nodes with the `recipe[gengine]` applied to its run-list to become execution nodes. It is assumed that each Grid Engine cluster has a single instance of a queue master node, and a significantly smaller number of client nodes compared to execution nodes. All exec and client nodes need to define the attributes `node.gengine.master` in order to communicate with the corresponding queue master. (Refer to the section Usage for a simple example.)
 
-Depending on the assigned `node.gengine.role` for each particular node one of the recipes fo installation will be executed:  `recipes/install_master.rb`,  `recipes/install_exec.rb`, `recipes/install_client.rb`.
+Depending on the assigned `node.gengine.role` for each particular node one of the recipes fo installation will be executed:  
+
+↪ `recipes/install_master.rb`  
+↪ `recipes/install_exec.rb`  
+↪ `recipes/install_client.rb`
 
 ## Repository
 
-Find the code in `recipes/config_repository.rb`
+↪ `recipes/config_repository.rb`
 
 The complex part of a Grid Engine cluster configuration applies only to the master. With the help of this cookbook any aspect of the queue master configuration can be defined by attributes. Since such a queue master configuration becomes very complex for large deployments, and is surprisingly dynamic depending on the number of users/groups and applications, **the configuration can be maintained in an configuration repository**. This repository backed by the version control system Git is independent of Chef roles and the Gengine cookbook.  
 
@@ -67,7 +66,10 @@ Freeze the configuration to a tagged version of the configuration repository usi
 
 ## Global
 
-Find the code in `recipes/config_global.rb` and the default Grid Engine global attributes in `attributes/config_global.rb`. The **manual "sge_conf"** contains a detailed description. Use the attribute `node.gengine.global` to overwrite the cookbook defaults. 
+↪ `recipes/config_global.rb`  
+↪ `attributes/config_global.rb`
+
+The **manual "sge_conf"** contains a detailed description. Use the attribute `node.gengine.global` to overwrite the cookbook defaults. 
 
 
     "gengine" => {
@@ -91,7 +93,10 @@ On a deployed Grid Engine master you can verify the configuration using the comm
 
 ## Scheduler 
 
-Find the code in `recipes/config_scheduler.rb` and the Grid Engine default scheduler attributes in `attributes/config_scheduler.rb`. Similar to the global configuration the scheduler configuration can be applied by attributes:
+↪ `recipes/config_scheduler.rb`  
+↪ `attributes/config_scheduler.rb`. 
+
+Similar to the global configuration the scheduler configuration can be applied by attributes:
 
     "gengine" => {
       ...SNIP...
@@ -114,7 +119,7 @@ Verify the configuration on a deployed master node with `qconf -ssconf`. Read th
 
 ## Fair-Share
 
-Find the code in `recipes/config_sharetree.rb`.
+↪ `recipes/config_sharetree.rb`
 
 Buy default the _gengine_ cookbook will deploy a fair-shair configuration to equally distribute all resources among user, groups and projects. In case you don't want the "sharetree" to be modified by the cookbook comment the including of the recipe in `recipes/install_master.rb`.
 
@@ -122,7 +127,10 @@ In order **to deploy a more complex configuration for fair-share use a file `sha
 
 ## Groups and Departments
 
-Find the code in `recipes/config_groups.rb` and the default attributes for Grid Engine user groups (aka access lists) in `attributes/config_groups.rb`. Define groups of users with the attribute `node.gengine.groups`. Like for all other configurations you can define any parameter described in the **manual "access_list"**, e.g.:
+↪ `recipes/config_groups.rb`  
+↪ `attributes/config_groups.rb`. 
+
+Define groups of users with the attribute `node.gengine.groups`. Like for all other configurations you can define any parameter described in the **manual "access_list"**, e.g.:
 
     "gengine" => {
       ...SNIP...
@@ -155,7 +163,10 @@ In order to define a department instead of an access list set `type   DEPT`. Not
 
 ## Projects
 
-Find the code in `recipes/config_projects.rb` and the Grid Engine default attributes for projects in `attributes/config_projects`. Projects are used to **organize joint computational tasks from multiple users**. You can list all defined projects with `qconf -sprjl` to verify the configuration deployed by this recipe. Read the **manual "project"** for more details. 
+↪ `recipes/config_projects.rb`  
+↪ `attributes/config_projects`
+
+Projects are used to **organize joint computational tasks from multiple users**. You can list all defined projects with `qconf -sprjl` to verify the configuration deployed by this recipe. Read the **manual "project"** for more details. 
 
 Use the attribute `node.gengine.projects` to add projects to the master configuration:
 
@@ -185,7 +196,10 @@ Define projects in the configuration repository in a sub-directory `projects/` u
 
 ## Users
 
-Find the code in `recipes/config_users.rb` and the default Grid Engine configuration attributes for user accounts in `attributes/config_users.rb`. **Users with valid operating system user accounts can submit jobs to the Grid Engine cluster**. A Grid Engine user account is automatically created since this cookbooks sets the global configuration `enforce_user   auto`. However in case the master needs to know about user accounts unknown to the hosting operating system or you do not want to get users automatically managed use the Chef attribute `node.gengine.users` like:
+↪ `recipes/config_users.rb`  
+↪ `attributes/config_users.rb`
+
+**Users with valid operating system user accounts can submit jobs to the Grid Engine cluster**. A Grid Engine user account is automatically created since this cookbooks sets the global configuration `enforce_user   auto`. However in case the master needs to know about user accounts unknown to the hosting operating system or you do not want to get users automatically managed use the Chef attribute `node.gengine.users` like:
 
     "gengine" => {
       ...SNIP...
@@ -215,8 +229,10 @@ Verify the user configuration on the master with `qconf -suserl`.
 
 ## Parallel Environments
 
-Find the code in `recipes/config_parallel_environments.rb` and the Grid Engine default attributes for a parallel environment in `attributes/config_parallel_environments.rb`. Use the Chef attribute `node.gengine.parallel_environments` to define parallel environments:
+↪ `recipes/config_parallel_environments.rb`  
+↪ `attributes/config_parallel_environments.rb`
 
+Use the Chef attribute `node.gengine.parallel_environments` to define parallel environments:
 
     "gengine" => {
       ...SNIP...
@@ -243,7 +259,10 @@ Resources **are requested by users on job submission, and are consumed by jobs**
 
 ### Complex Values
 
-Find the code in `recipes/config_complex_values.rb` and the by default defined resources in `attributes/config_complex_values.rb`. Overwrite the default resources or define additional resources with the Chef attribute `node.gengine.complex_values`, e.g.:
+↪ `recipes/config_complex_values.rb`  
+↪ `attributes/config_complex_values.rb` 
+
+Overwrite the default resources or define additional resources with the Chef attribute `node.gengine.complex_values`, e.g.:
 
     "gengine" => {
       ...SNIP...
@@ -263,7 +282,9 @@ Verify the configuration of Grid Engine complex values with the command `qconf -
 
 ### Quotas
 
-Find the code in `recipes/config_quotas.rb`. Uee the Chef attribute `node.gengine.quotas` resource quotas like:
+↪ `recipes/config_quotas.rb`. 
+
+Use the Chef attribute `node.gengine.quotas` to define resource quotas like:
 
     "gengine" => {
       ...SNIP...
@@ -290,7 +311,7 @@ Verify the Grid Engine quota configuration with the commands `qconf -srqsl` and 
 
 ## Execution Nodes
 
-Find the code in <tt>recipes/config\_host\_groups.rb</tt>.
+↪ `recipes/config_host_groups.rb`
 
 ### Host Groups
 
@@ -353,7 +374,10 @@ In addition to defining host lists for each host group it is possible to specify
 
 ## Queues
 
-Find the code in `recipes/config_queues.rb` and the default Grid Engine attributes for queues in `attributes/config_queues.rb`. Use the Chef attribute `node.gengine.queues` to configure individual queues like: 
+↪ `recipes/config_queues.rb`  
+↪ `attributes/config_queues.rb`
+
+Use the Chef attribute `node.gengine.queues` to configure individual queues like: 
 
     "gengine" => {
        ...SNIP...
@@ -381,7 +405,9 @@ All Grid Engine attributes to configure queue are desribed in the **manual "queu
 
 ## Client Nodes
 
-Find the code in `recipes/config_clients.rb`. Grid Engine clients have the user-space tools installed and are used to manage jobs on the cluster. Often they are referred to as submit nodes. Use the Chef attribute `node.gengine.clients.nodes` to define submit nodes:
+↪ `recipes/config_clients.rb`
+
+Grid Engine clients have the user-space tools installed and are used to manage jobs on the cluster. Often they are referred to as submit nodes. Use the Chef attribute `node.gengine.clients.nodes` to define submit nodes:
 
     "gengine" => {
       ...SNIP...
