@@ -1,8 +1,10 @@
-## 0.6.0
+## next version
 
-* Add script `qconf-json2sharetree` to transform a JSON 
-  sharetree specification into a format understood by 
+* Add script `qconf-json2sharetree` to transform a JSON
+  sharetree specification into a format understood by
   `qconf`.
+* [BUG] Queue master not included automatically in the
+  list of client nodes.
 
 ## 0.5.0
 

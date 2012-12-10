@@ -30,7 +30,7 @@ end
 node.default[:gengine][:master] = node.fqdn
 # install and configure the client on the master
 include_recipe "gengine::install_client"
-node.default[:gengine][:clients] << node.fqdn
+node.default[:gengine][:clients][:nodes] << node.fqdn
 # queue master configuration from an external Git repository
 include_recipe 'gengine::config_repository' unless node.gengine.repo.url.empty?
 # Several runs will be needed to configuration the master!

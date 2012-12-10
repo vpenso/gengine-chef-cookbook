@@ -20,11 +20,10 @@ class Chef::Recipe
   include Gengine
 end
 
-
 # Search the Chef inventory for Grid Engine client nodes
 if node.gengine.clients.has_key? 'search'
   if Chef::Config[:solo]
-    Chef::Log.warn("[gengine] Can't search for Grid Engine client nodes in solo mode!")
+    Chef::Log.warn("[gengine::config_clients] Can't search for Grid Engine client nodes in solo mode!")
   else
     search(:node, node.gengine.clients[:search]) do |n|
       # add clients nodes to the list
@@ -33,7 +32,7 @@ if node.gengine.clients.has_key? 'search'
   end
 end
 
-# make sure that dublicates from all configuration sources get removed
+# make sure that duplicates from all configuration sources get removed
 node.gengine.clients.nodes.uniq!
 
 # list of already know clients from the master
@@ -43,7 +42,7 @@ node.gengine.clients.nodes.each do |name|
   unless clients.include? name
     execute "qconf -as #{name}"
     execute "qconf -ah #{name}" if node.gengine.clients.admins
-    Chef::Log.info("[gengine] Node '#{name}' becomes a submit node.")
+    Chef::Log.info("[gengine::config_clients] Node '#{name}' becomes a submit node.")
   end
   clients.delete name
 end
