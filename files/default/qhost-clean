@@ -78,12 +78,23 @@ begin
     # Get the job ID
     job_id = job_id.split('=')[1].to_i
     process = dir.split('/')[-1]
-    log.debug("Process #{process} associated with GridEngine job #{job_id}")
+    user = `ps -p #{process} -o user`.split("\n")[1]
+    log.debug("#{job_id} - #{user}##{process}")
     next if jobs.include? job_id
-    # In case orphan  processes are found
-    log.info("Process #{process} stale from GridEngine job #{job_id}. Sending KILL signal.")
+    # In case orphan processes are found
+    log.info("SIGKILL -- Orphan process found #{job_id} - #{user}##{process}")
     `kill -KILL #{process}`
   end
+
+  `du --max-depth=1 -k /tmp/* | sort -n | cut -f2 | xargs ls -ld | tr -s ' ' | cut -d' ' -f 3 | uniq | xargs -I {} bash -c 'if ! ps -u {} 1>- ; then echo {}; fi'`.split("\n").each do |user|
+    log.info("REMOVE -- Orphan directories in /tmp for user #{user}.")
+    `find /tmp -user #{user}`.split("\n").each do |dir|
+      log.debug("  #{dir}")
+      system "rm -rf #{dir}"
+    end
+  end
+
+
 
 rescue => exc
   $stderr.puts "ERROR: #{exc.message}"
