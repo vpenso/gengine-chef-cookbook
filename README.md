@@ -32,7 +32,7 @@ General Documentation:
 - Creating [Groups and Departments](documents/config_groups.md), 
 [Projects](documents/config_projects), and [Users](documents/config_users.md).
 - Define resource pool with [Queues](documents/config_queues.md).
-- [Parallel Environments](dpcuments/config_parallel_environments.md) for
+- [Parallel Environments](documents/config_parallel_environments.md) for
 SMP and MPI.
 
 ## Resources
