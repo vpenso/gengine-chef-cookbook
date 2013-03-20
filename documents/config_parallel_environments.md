@@ -1,31 +1,27 @@
 
 # Parallel Environments
 
+Usually jobs allocate a single CPU core. If an application 
+needs multiple cores in parallel, this requirement must be
+defined when submitting a job. GridEngine supports such 
+requirements with so called "parallel environments".
+
 ↪ `recipes/config_parallel_environments.rb`  
 ↪ `attributes/config_parallel_environments.rb`
-
-## Basics
-
-Generally each job gets a single CPU for consumption by its 
-application. If an application is developed to utilize many 
-CPUs within a single program, then the user needs to specify 
-this resource requirement when submitting it as a job. 
-
-GridEngine supports multiple so called "parallel environments" 
-used for different types of multi-core applications (use 
-`qconf -spl` to see a list of provided parallel environments). 
 
 ## Configuration
 
 Details about the configuration of parallel environments are 
-available in the manual **sge_pe**. The most important 
-configuration option is the `allocation_rule`.
+available in the manual *sge_pe*. The most important 
+configuration option is the `allocation_rule`. **This cookbook
+will configure parallel environments according to attributes
+defined in `node.gengine.parallel_environments`**. The following
+two examples illustrate this.
 
-Use the Chef attribute `node.gengine.parallel_environments` to 
-define a parallel environment called "smp", for programs based 
-on shared memory access (by multiple parallel threats). In this 
-example the rule `$pe_slots` forces the allocation of all slots
-associated to the job onto a single node:
+For programs based shared memory access the parallel environment
+could be called "smp". The allocation rule `$pe_slots` forces 
+all cores required by a job to be located on a single execution-node.
+Within a role the following attributes would be defined:
 
     "gengine" => {
       ...SNIP...
@@ -38,18 +34,18 @@ associated to the job onto a single node:
       ...SNIP...
     } 
 
-Alternatively it is possible to use the sub-directory 
-`parallel_environments/` of a configuration repository to define a 
-parallel environment. For example called "openmpi" by creating a 
-file called `parallel_environments/openmpi` with content like:
+Alternatively it is possible to use a file within a configuration
+repository to define a parallel environment. For example a file
+called `parallel_environments/openmpi` defines a parallel environment
+called "openmpi", and would contain content like:
 
     pe_name            openmpi
     slots              10000
     allocation_rule    $fill_up
     ...SNIP...
 
-Verify the configuration of a parallel environment with the commands
-`qconf -spl` and `qconf -sp PE_NAME`, like:
+In order to verify the configuration deployed by Chef use the 
+commands `qconf -spl` and `qconf -sp`, like:
 
     » qconf -sp openmpi
     pe_name            openmpi

@@ -1,17 +1,11 @@
 
-# Debian Specifics
+# GridEngine on Debian
 
-Debian provides binaries for Grid Engine with the packages:
+Debian provides binaries for Grid Engine with the packages: `gridengine-master`, `gridengine-exec`, `gridengine-client`. The queue master stores logging in `/var/spool/gridengine/qmaster/messages`. It contains scheduling decisions and  error information about the daemon as well as failed jobs. The corresponding daemon `sge_qmaster` needs to be running in order to accept jobs. You can check this by looking for processes from the user `sgeadmin`. **Control the master daemons using the script** `/etc/init.d/gridengine-master`. In order to accept jobs from the queue master each execution node needs to have a correctly configured `sge_execd` daemon running under the user account `sgeadmin`. Control the execution daemons using the init-script `/etc/init.d/gridengine-exec`. 
 
-`gridengine-master`  
-`gridengine-exec`  
-`gridengine-client`
+**In case of communication problem between queue master and the exec node lookout for log files like** `/tmp/exed_messages.[pid]`. Also the queue master indicates authorization problems with execution nodes in its log-file. The job spool directory is located in `/var/spool/gridengine/execd/`.
 
-The queue master stores its **log in** `/var/spool/gridengine/qmaster/messages`. It does not only contain scheduling info but also error information about the daemon as well as about failed jobs. The corresponding daemon `sge_qmaster` needs to be running in order to accept jobs. You can check by looking for processes from the user `sgeadmin`. **Control the master daemons using the script** `/etc/init.d/gridengine-master`.
-
-In order to accept jobs from the queue master each execution node needs to have a correctly configured `sge_execd` daemon running under the user account `sgeadmin`. **Control the execution daemons using the init script** `/etc/init.d/gridengine-exec`. **In case of communication problem between queue master and the exec node lookout for log files like** `/tmp/exed_messages.[pid]`. Also the queue master indicates authorization problems with execution nodes in its log-file. The job spool directory is located in `/var/spool/gridengine/execd/`.
-
-## Manual Installation
+## Installation
 
 The most simple setup configures a single machine to host the Grid Engine queue master, to act as an execution node and to be an job submit node with client command-line interface. The following example is build with a **virtual machine named `lxdev01.devops.test`** running Debian Wheezy as operating system.
 
@@ -72,6 +66,8 @@ Installation and configuration is done with root privileges, to submit the first
     department   defaultdepartment   
     jobname      echo.sge      
     [...SNIP...]
+
+## Adding Another Execution-Node
 
 The actually build a "cluster" of machines at least a **second execution node `lxdev02.devops.test`** is needed. Before this node is installed we can add it to the `@default` host group.
 
