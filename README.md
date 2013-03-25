@@ -47,28 +47,7 @@ Resources **are requested by users on job submission, and are consumed by jobs**
 **Execution nodes are the machines hosting queues to accept jobs for local execution**. The majority of machines in a cluster are execution nodes (or number crunchers, batch nodes, worker nodes, whatever) in contrast to the queue master and a small number of job submit hosts for users.
 
 - Define collections of execution nodes with [Host Groups](documents/config_host_groups.md).
-- Set specific [Host Resources](documents/config_host_resources.md).
-
-It is generally possible to administrate execution nodes individually:
-
-    » qconf -help | grep exec
-    [-ae [exec_server_template]]             add an exec host using a template
-    [-Ae fname]                              add an exec host from file
-    [-de host_list]                          delete exec host
-    [-ke[j] host_list                        shutdown execution daemon(s)
-    [-me server]                             modify exec server
-    [-Me fname]                              modify exec server from file
-    [-se server]                             show given exec server
-    [-sel]                                   show a list of all exec servers
-    » qconf -sel
-    lxdev01.devops.test
-    lxdev02.devops.test
-
-**Nevertheless it is recommended to structure execution nodes into host groups.**
-
-
-
-
+- Define [Host Resources](documents/config_host_resources.md) (consumable by jobs.
 
 # Usage
 
