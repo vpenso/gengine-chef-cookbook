@@ -183,14 +183,13 @@ begin
     g_users = Gengine::users
     $log.info("Users with Processes spawned by GridEngine: [#{g_users.sort.join(',')}]")
     g_users.each do |user|
-      # never touch process of users with running jobs
-      next if j_users.include? user
-      # loop over all orphan processes
-      $stdout.puts "Killing processes of user [#{user}:"
       Gengine::processes(user).each do |pid,jid|
-        $stdout.puts "  #{pid} (#{jid})"  
-        next if options.dry_run
-        system("kill -KILL #{pid}")
+        # only processes without existing job ID
+        unless system("qstat -j #{jid} 2>/dev/null 1>/dev/null")
+          $stdout.puts " #{user}:#{pid} (#{jid})"  
+          next if options.dry_run
+          system("kill -KILL #{pid}")
+        end
       end
     end
   when 'temp':
